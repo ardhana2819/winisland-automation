@@ -35,7 +35,7 @@ param(
 $ErrorActionPreference = "Stop"
 
 # The only download is the setup, from the public release copy; WinIsland itself stays offline.
-$ReleasesApi = "https://api.github.com/repos/ardhana2819/WinIsland-releases/releases/tags"
+$ReleasesApi = "https://api.github.com/repos/ardhana2819/winisland-releases/releases/tags"
 $RepoRoot = $PSScriptRoot
 $TestProject = Join-Path $RepoRoot "tests\WinIsland.SmokeTests\WinIsland.SmokeTests.csproj"
 $ResultsFolder = Join-Path $RepoRoot ("results\" + (Get-Date -Format "yyyyMMdd-HHmmss"))
