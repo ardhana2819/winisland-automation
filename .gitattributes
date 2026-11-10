@@ -1,0 +1,7 @@
+# .gitattributes: line ending rules, so files look the same on every PC and in CI.
+# Windows files use CRLF. Git hooks and shell scripts run in Git Bash and need LF.
+* text=auto eol=crlf
+.githooks/* text eol=lf
+*.sh text eol=lf
+*.png binary
+*.ico binary

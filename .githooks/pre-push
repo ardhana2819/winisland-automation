@@ -1,0 +1,18 @@
+#!/bin/sh
+# pre-push: refuses any push that would update the main branch.
+# Why: every change must reach main through a pull request (see README, "Branch workflow").
+# GitHub cannot enforce this on a free private repo, so this local hook is the safety net.
+# Enable once per clone with: git config core.hooksPath .githooks
+
+protected_branch="refs/heads/main"
+
+# Git sends one line per ref being pushed: <local ref> <local sha> <remote ref> <remote sha>
+while read -r local_ref local_sha remote_ref remote_sha; do
+    if [ "$remote_ref" = "$protected_branch" ]; then
+        echo "pre-push: pushing to main is not allowed." >&2
+        echo "Create a branch (feat/, fix/, chore/, docs/, spike/) and open a pull request instead." >&2
+        exit 1
+    fi
+done
+
+exit 0
