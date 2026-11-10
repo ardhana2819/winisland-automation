@@ -1,0 +1,22 @@
+<!--
+  FakeMusicPlayer: a tiny stand-in music app for the music smoke tests (ST-14 to ST-18).
+  It tells Windows through the media session API that it plays a made-up song, the same way
+  Spotify does, so the tests need no real music app and no real music. It plays no sound.
+  The smoke test project starts it and reads the button presses it reports on its output.
+  The Windows version matches WinIsland's, for the media session API.
+-->
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0-windows10.0.26100.0</TargetFramework>
+    <UseWindowsForms>true</UseWindowsForms>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- WinForms is only here for the one hidden window Windows ties the media session to. -->
+    <Using Remove="System.Drawing" />
+  </ItemGroup>
+
+</Project>

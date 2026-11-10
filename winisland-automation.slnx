@@ -1,5 +1,6 @@
 <Solution>
   <Folder Name="/tests/">
+    <Project Path="tests/FakeMusicPlayer/FakeMusicPlayer.csproj" />
     <Project Path="tests/WinIsland.SmokeTests/WinIsland.SmokeTests.csproj" />
   </Folder>
 </Solution>
