@@ -24,7 +24,7 @@ If a run is cut off (power cut, window closed), the copy stays as `settings.json
 |---|---|---|
 | 1 | ST-01 to ST-13: install, start, Settings, hotkeys, tray | Built |
 | 2 | ST-14 to ST-18: music, with a fake music player | Built |
-| 3 | ST-19 to ST-24: notifications, with a test notification | Planned |
+| 3 | ST-19 to ST-24: notifications, with a test notification | Built |
 
 ## Install and start
 
@@ -157,45 +157,53 @@ If something is in the way, the test fails at once with "Cannot run:", names the
 - **Expected:** the music page shows "Not playing", and WinIsland keeps running.
 - **How:** automatic.
 
-## Notifications (batch 3, planned)
+## Notifications
 
-These tests send a made-up notification from a small test program, `TestToastSender`. They need WinIsland's notification permission, which Windows asks you for once; without it they are skipped with that reason. Whether Windows lets the test program send a notification that WinIsland accepts as "another Windows app" is still to be checked at the start of batch 3.
+These tests send made-up Windows notifications from "Test Sender", with a unique made-up text like "Smoke test message 3F9A1C2B", never a real message. They come from the test itself, under an app name the test registers for your account, "WinIsland Smoke Test" (a key under `HKCU\Software\Classes\AppUserModelId`). WinIsland counts it as "another Windows app", like Snipping Tool. After each test, its notifications are removed from the Windows notification center and the key is deleted again.
+
+Tried before the tests were written, on 10 Nov 2026: WinIsland showed such a notification within 0.2 seconds.
+
+- WinIsland shows other apps only with **"Show other Windows apps"** on, which is off by default. So each test first turns it on in Settings, as you would. ST-20 also turns on "Hide message text".
+- The tests need **WinIsland's notification permission**, which Windows asks you for once. It cannot be read from outside WinIsland, so a test cannot check it up front. If no banner comes, the test fails, and its message says to check Windows Settings > Privacy > Notifications.
+- During the run you may see the made-up notifications pop up in the corner of the screen. That is expected.
 
 ### ST-19 A test notification shows as a banner
-- **Why:** WinIsland must show notifications from allowed apps, and only those. PRD FR-13, FR-14, FR-42.
-- **Steps:** with "Show other Windows apps" on, send a test notification. Turn the switch off and send another.
-- **Expected:** the first shows as a banner with its sender and text; the second shows nothing.
-- **How:** automatic (planned).
+- **Why:** WinIsland must show notifications from allowed apps, and only those. PRD FR-13, FR-14.
+- **Steps:** turn on "Show other Windows apps" and send a test notification. Wait until its banner is gone, turn the switch off, and send another.
+- **Expected:** the first shows as a banner with "Test Sender" and its text. The second shows no banner, and its text is nowhere on the island (4 seconds are allowed for it to show anyway).
+- **Note:** the app's logo on the banner (FR-42) is not checked; that needs your eyes.
+- **How:** automatic.
 
 ### ST-20 "Hide message text" hides the text
 - **Why:** with this switch on, the message text must never show. PRD FR-17.
-- **Steps:** turn on "Hide message text", send a test notification.
-- **Expected:** the banner shows the sender, but not the message text.
-- **How:** automatic (planned).
+- **Steps:** turn on "Show other Windows apps" and "Hide message text", send a test notification.
+- **Expected:** the banner shows "Test Sender", and the message text is nowhere on the island, on any of its layers.
+- **How:** automatic.
 
 ### ST-21 The banner goes away by itself
 - **Why:** the banner must hide after the notification duration. PRD FR-16.
-- **Steps:** send a test notification and wait.
-- **Expected:** the banner is gone after the chosen duration (6 seconds by default).
-- **How:** automatic (planned).
+- **Steps:** send a test notification and watch the banner.
+- **Expected:** halfway (3 seconds) the banner is still there. It is gone after the default 6 seconds: not before 5, and by 8.5 at the latest, which allows for the hide animation and up to 1 second of delay without instant notifications.
+- **How:** automatic.
 
 ### ST-22 The notifications page lists notifications
 - **Why:** the island's second page shows the last notifications, or says there are none. PRD FR-22.
-- **Steps:** open the notifications page before and after a test notification.
-- **Expected:** before: "No notifications". After: the test notification is listed.
-- **How:** automatic (planned).
+- **Steps:** open the notifications page (Ctrl+Alt+I, then Alt+Down) and close it again. Send a test notification, then open the page again.
+- **Expected:** before: "No notifications". After: a card with "Test Sender" and the message text, and no "No notifications".
+- **How:** automatic.
 
 ### ST-23 A notification cleared in Windows leaves the island
 - **Why:** when Windows removes a notification (for example you read it), it must leave the island too. PRD FR-15.
-- **Steps:** send a test notification, then clear it from Windows.
-- **Expected:** it disappears from the notifications page.
-- **How:** automatic (planned).
+- **Steps:** send a test notification and open the notifications page. Remove the notification from the Windows notification center, as reading it in the app would.
+- **Expected:** the card leaves the page, and the page says "No notifications" again. WinIsland waits 1 second first, to tell a read chat from WhatsApp swapping its notification (FR-15); the test allows 15 seconds.
+- **History:** on 10 Nov 2026 this test found that the card sometimes stayed. In 5 runs of ST-23 alone with WinIsland 1.8.0-beta.1 it failed 2 times; once more it passed only because the card left exactly on the minute, 13 seconds late. WinIsland's log showed the removal arriving every time, but the 1-second decision was made only by the once-a-minute backup tick: `IslandTimeTimer` stopped itself each time it fired and was only started again when the island changed, so a tick a few milliseconds early left it off. The same timer also ends the banner, "Pause for 1 hour" and the paused song. WinIsland PR #58 fixed it (in 1.8.1-beta.1): after the fix ST-23 passed 10 of 10 runs alone, with the card leaving 1.0 seconds after each removal, and in the full run.
+- **How:** automatic.
 
 ### ST-24 Message text is never written to disk
 - **Why:** message text stays in memory only. PRD FR-18.
-- **Steps:** after the notification tests, search WinIsland's folder `%USERPROFILE%\.winisland` (settings and log) for the unique made-up text the tests sent.
-- **Expected:** the text is found nowhere.
-- **How:** automatic (planned).
+- **Steps:** send a test notification and check that it reached the notifications page, so WinIsland surely had the text. Stop WinIsland. Search every file in WinIsland's folder `%USERPROFILE%\.winisland` (settings and log) for the unique text, written in either of the two usual ways (UTF-8 and UTF-16).
+- **Expected:** the text is found nowhere. A file that cannot be read fails the test instead of being skipped.
+- **How:** automatic.
 
 ## Manual tests
 

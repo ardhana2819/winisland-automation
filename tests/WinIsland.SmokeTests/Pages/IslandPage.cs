@@ -75,6 +75,19 @@ internal sealed class IslandPage
     /// <summary>The expanded music page, see MusicPage.</summary>
     public MusicPage Music() => new(_window);
 
+    /// <summary>The expanded notifications page, see NotificationsPage.</summary>
+    public NotificationsPage Notifications() => new(_window);
+
+    /// <summary>The sender on the notification banner. The message banner comes before the call banner in the window.</summary>
+    public string BannerSenderText() => Text("BannerSender");
+
+    /// <summary>The banner's height: 100 percent while a banner shows, 88 percent while it rests.</summary>
+    public double BannerHeight() => Element("BannerSender").BoundingRectangle.Height;
+
+    /// <summary>Whether this text is anywhere on the island, on any layer, shown or not.</summary>
+    public bool ContainsText(string text) =>
+        _window.FindAllDescendants().Any(element => element.Properties.Name.ValueOrDefault?.Contains(text, StringComparison.Ordinal) == true);
+
     /// <summary>The hotkey conflict text, empty when there is no conflict.</summary>
     public string ConflictText() => Text("ConflictText");
 

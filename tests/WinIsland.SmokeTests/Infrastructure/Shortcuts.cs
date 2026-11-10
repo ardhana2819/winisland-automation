@@ -28,6 +28,9 @@ internal static class Shortcuts
     /// <summary>Ctrl+Left: the previous song, only while the island is open (FR-8).</summary>
     public static void PreviousSong() => PressKeys(VirtualKeyShort.CONTROL, VirtualKeyShort.LEFT);
 
+    /// <summary>Alt+Down: the notifications page, only while the island is open (FR-21).</summary>
+    public static void ShowNotificationsPage() => PressKeys(VirtualKeyShort.ALT, VirtualKeyShort.DOWN);
+
     private static void Press(VirtualKeyShort key) => PressKeys(VirtualKeyShort.CONTROL, VirtualKeyShort.ALT, key);
 
     private static void PressKeys(params VirtualKeyShort[] keys)
