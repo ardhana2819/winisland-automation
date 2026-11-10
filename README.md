@@ -41,7 +41,7 @@ Afterwards the script prints where the results are: `results\<date-time>\summary
 ## What the tests do to your PC
 
 - **Install:** with `-Setup` or `-Version` the setup runs silently. It closes WinIsland, updates it in place and keeps your settings, like a normal update.
-- **Settings:** your settings and the start with Windows entry are backed up before the first test and put back after the last. If a run is cut off, the backup stays as `%USERPROFILE%\.winisland\settings.json.smoke-test-backup`, and the next run restores it first.
+- **Settings:** your settings and the start with Windows entry are backed up before the first test and put back after the last. With instant notifications set up, start with Windows is a Windows startup task that follows your settings when WinIsland starts, so if WinIsland was not running, it is started for a moment at the end to put the task back. If a run is cut off, the backup stays as `%USERPROFILE%\.winisland\settings.json.smoke-test-backup`, and the next run restores it first.
 - **WinIsland:** each test starts a fresh WinIsland with the default settings. At the end WinIsland is started again if it was running before.
 - **Never:** the tests never uninstall WinIsland (that would remove the instant notifications package), never press Update, and never use real messages.
 

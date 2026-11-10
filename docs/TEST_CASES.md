@@ -74,12 +74,15 @@ If a run is cut off (power cut, window closed), the copy stays as `settings.json
 - **Note:** this does not check how Glass looks; that needs your eyes (M-06).
 - **How:** automatic.
 
-### ST-08 Launch with Windows adds and removes the startup entry
+### ST-08 Launch with Windows turns start with Windows on and off
 - **Why:** the "Launch with Windows" switch must make WinIsland start with Windows, or stop that. PRD FR-20.
 - **Steps:** in Settings press the "Launch with Windows" switch with the keyboard (Space), then press it again.
-- **Expected:** switching on adds the entry `WinIsland` with the path of WinIsland.App.exe under `HKCU\Software\Microsoft\Windows\CurrentVersion\Run`; switching off removes it.
-- **Known result (10 Nov 2026):** fails on Diva's PC. Switching off saves the setting but leaves the entry, so WinIsland would still start with Windows. To be looked at in the WinIsland repo.
-- **How:** automatic.
+- **Expected:** it depends on how WinIsland is set up:
+  - **With instant notifications** (package identity, set up with `Install-WinIslandIdentity.ps1`): switching on turns on WinIsland's Windows startup task, the one shown in Windows Settings > Apps > Startup; switching off turns it off. The registry's Run list has no WinIsland entry at any time.
+  - **Without them:** switching on adds the entry `WinIsland` with the path of WinIsland.App.exe under `HKCU\Software\Microsoft\Windows\CurrentVersion\Run`; switching off removes it.
+- **Before the test:** with instant notifications, the identity package must be version 1.0.3.0 or newer, because older ones have no startup task. The test says so if it is older.
+- **History:** on 10 Nov 2026 this test found that switching off left the Run entry when instant notifications were set up, because Windows gives such an app a private copy of the Run list. WinIsland PR #57 moved it to the startup task.
+- **How:** automatic. Windows starting WinIsland after a real sign-in stays a manual check (M-10).
 
 ### ST-09 Update button is there and enabled
 - **Why:** the Update button in Settings starts the update script. PRD FR-46.
@@ -202,5 +205,6 @@ Done by Diva on her PC, before a release or when the feature changed.
 | M-07 | Color emoji | Get a message and play a song with emoji in the name. | Emoji show in color. | FR-47 |
 | M-08 | Update | Press Update in Settings when a newer release exists. | WinIsland updates and starts again with the new version. | FR-46 |
 | M-09 | Uninstall | Only when the installer changed: uninstall from Installed apps. Afterwards install again and run `Install-WinIslandIdentity.ps1` for instant notifications. | Files, shortcuts and the start with Windows entry are gone; `.winisland` stays. | FR-44 |
+| M-10 | Start with Windows | Turn "Launch with Windows" on, sign out and sign in again. Then turn it off and do the same. | On: WinIsland starts by itself, once (one island). Off: it does not start. | FR-20 |
 
 Uninstall is manual on purpose: it also removes the instant notifications package, and installing again does not bring it back.

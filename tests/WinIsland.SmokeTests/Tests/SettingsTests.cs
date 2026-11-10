@@ -2,10 +2,9 @@
 // ST-05: Settings opens from the tray and shows the installed version (FR-46).
 // ST-06: the island size choice scales the island, is saved, and is kept after a restart (FR-32).
 // ST-07: the look can switch between Solid and Glass (beta) without an error (FR-37).
-// ST-08: "Launch with Windows" adds and removes the start with Windows entry (FR-20).
+// ST-08: "Launch with Windows" turns start with Windows on and off, through the Run list or,
+//        with package identity, the Windows startup task (FR-20, see StartWithWindows).
 // ST-09: the Update button is there and can be pressed (FR-46). It is not pressed.
-
-using Microsoft.Win32;
 
 using WinIsland.SmokeTests.Infrastructure;
 using WinIsland.SmokeTests.Pages;
@@ -80,39 +79,53 @@ public sealed class SettingsTests(SmokeTestRun run)
         settings.Close();
     }
 
-    [Fact(DisplayName = "ST-08 Launch with Windows adds and removes the startup entry")]
+    [Fact(DisplayName = "ST-08 Launch with Windows turns start with Windows on and off")]
     public void ST08_LaunchWithWindowsSwitch()
     {
+        bool hasIdentity = StartWithWindows.HasPackageIdentity();
+        if (hasIdentity)
+        {
+            Assert.True(
+                StartWithWindows.StartupTaskState() is not null,
+                "WinIsland's identity package has no startup task. Run Install-WinIslandIdentity.ps1 again (package 1.0.3.0 or newer).");
+        }
+
         IslandPage.StartFresh(run.Automation);
         SettingsPage settings = SettingsPage.OpenFromTray(run.Automation);
         bool startedOn = settings.IsLaunchWithWindowsOn();
-        Assert.Equal(startedOn, StartupEntry() is not null);
+        WaitForStartWithWindows(settings, on: startedOn);
 
         settings.PressLaunchWithWindows();
-        WaitForStartupEntry(settings, present: !startedOn);
-        if (!startedOn)
+        WaitForStartWithWindows(settings, on: !startedOn);
+        if (!hasIdentity && !startedOn)
         {
-            Assert.Equal($"\"{InstalledApp.ExePath}\"", StartupEntry(), StringComparer.OrdinalIgnoreCase);
+            Assert.Equal($"\"{InstalledApp.ExePath}\"", StartWithWindows.RunEntry(), StringComparer.OrdinalIgnoreCase);
         }
 
         settings.PressLaunchWithWindows();
-        WaitForStartupEntry(settings, present: startedOn);
+        WaitForStartWithWindows(settings, on: startedOn);
         settings.Close();
+
+        // With identity the Run list is never used: an entry there would start a second WinIsland.
+        if (hasIdentity)
+        {
+            Assert.Null(StartWithWindows.RunEntry());
+        }
     }
 
-    private static void WaitForStartupEntry(SettingsPage settings, bool present)
+    private static void WaitForStartWithWindows(SettingsPage settings, bool on)
     {
         try
         {
-            UiWait.Until(() => (StartupEntry() is not null) == present, UiWait.Short, "the start with Windows entry to change");
+            UiWait.Until(() => StartWithWindows.IsOn() == on, UiWait.Short, "start with Windows to change");
         }
         catch (TimeoutException)
         {
-            // Say which half failed: the switch did not move, or it moved but nothing was saved.
+            // Say which half failed: the switch did not move, or it moved but Windows was not told.
             Assert.Fail(
-                $"Expected the start with Windows entry to be {(present ? "there" : "gone")}. " +
+                $"Expected start with Windows to be {(on ? "on" : "off")}. " +
                 $"The switch shows {(settings.IsLaunchWithWindowsOn() ? "on" : "off")}, " +
-                $"the entry is {StartupEntry() ?? "missing"}, settings.json has LaunchAtStartup = {SavedSettings.Read("LaunchAtStartup") ?? "nothing"}.");
+                $"the PC has {StartWithWindows.Describe()}, settings.json has LaunchAtStartup = {SavedSettings.Read("LaunchAtStartup") ?? "nothing"}.");
         }
     }
 
@@ -125,12 +138,6 @@ public sealed class SettingsTests(SmokeTestRun run)
         SettingsPage settings = SettingsPage.OpenFromTray(run.Automation);
         Assert.True(settings.UpdateButton().IsEnabled, "The Update button is greyed out although the update script is installed.");
         settings.Close();
-    }
-
-    private static string? StartupEntry()
-    {
-        using RegistryKey? runKey = Registry.CurrentUser.OpenSubKey(InstalledApp.StartupKeyPath);
-        return runKey?.GetValue(InstalledApp.StartupValueName) as string;
     }
 
     private static void AssertScale(double expected, double measured, string what) =>

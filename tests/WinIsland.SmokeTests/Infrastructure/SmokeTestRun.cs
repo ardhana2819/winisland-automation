@@ -1,7 +1,8 @@
 // SmokeTestRun.cs: what happens once around the whole run, shared by every test.
 // Before the first test: back up Diva's settings and remember whether WinIsland was running.
 // After the last test: stop the test WinIsland, restore the settings, and start WinIsland again
-// if it ran before, so the PC is left as it was found.
+// if it ran before, so the PC is left as it was found. With package identity and WinIsland not
+// running before, it is started for a moment so the startup task follows the restored settings.
 // It also holds the one UI Automation connection all tests use.
 
 using FlaUI.UIA3;
@@ -20,7 +21,6 @@ public sealed class SmokeTestRun : IDisposable
         // and ST-02 would show it as an off-center island.
         NativeMethods.SetProcessDpiAwarenessContext(NativeMethods.PerMonitorAwareV2);
 
-
         // run-smoke-tests.ps1 checks this before the installer closes WinIsland and passes it on.
         string? fromScript = Environment.GetEnvironmentVariable("WINISLAND_WAS_RUNNING");
         _wasRunningBefore = fromScript is null ? WinIslandProcess.IsRunning() : fromScript == "1";
@@ -36,12 +36,30 @@ public sealed class SmokeTestRun : IDisposable
     {
         WinIslandProcess.StopAll();
         _backup.Restore();
-        if (_wasRunningBefore && File.Exists(InstalledApp.ExePath))
+        if (File.Exists(InstalledApp.ExePath))
         {
-            WinIslandProcess.Start().Dispose();
+            if (_wasRunningBefore)
+            {
+                WinIslandProcess.Start().Dispose();
+            }
+            else if (StartWithWindows.HasPackageIdentity())
+            {
+                ApplyRestoredStartupTask();
+            }
         }
 
         Automation.Dispose();
+    }
+
+    // With identity, start with Windows is a Windows startup task that only WinIsland itself can
+    // change, and it follows settings.json when WinIsland starts. The backup restored the file,
+    // so a short start puts the task back to Diva's own setting.
+    private void ApplyRestoredStartupTask()
+    {
+        WinIslandProcess.Start().Dispose();
+        Pages.IslandPage.Find(Automation);
+        UiWait.ForAnimation();
+        WinIslandProcess.StopAll();
     }
 }
 
