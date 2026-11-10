@@ -1,4 +1,4 @@
-// SettingsPage.cs: WinIsland's Settings window (WinIsland PRD FR-19, FR-20, FR-32, FR-37, FR-46)
+// SettingsPage.cs: WinIsland's Settings window (WinIsland PRD FR-14, FR-17, FR-19, FR-20, FR-32, FR-37, FR-46)
 // through UI Automation. Controls are found by the names WinIsland gives them for screen readers
 // (AutomationProperties.Name) or by their x:Name, which WPF reports as the automation id.
 // A change in Settings is saved and applied at once, so there is no Save button to press.
@@ -50,16 +50,37 @@ internal sealed class SettingsPage
     public IReadOnlyList<string> LookOptions() =>
         [.. ByName("Look").AsComboBox().Items.Select(item => item.Name)];
 
-    public bool IsLaunchWithWindowsOn() => ByName("Launch with Windows").AsCheckBox().IsChecked == true;
+    public const string LaunchWithWindows = "Launch with Windows";
+    public const string ShowOtherApps = "Show other Windows apps";
+    public const string HideMessageText = "Hide message text";
+
+    public bool IsLaunchWithWindowsOn() => IsSwitchOn(LaunchWithWindows);
+
+    public void PressLaunchWithWindows() => PressSwitch(LaunchWithWindows);
+
+    /// <summary>Whether the switch with this name (for example "Show other Windows apps") is on.</summary>
+    public bool IsSwitchOn(string switchName) => ByName(switchName).AsCheckBox().IsChecked == true;
+
+    /// <summary>Turns the switch on or off, unless it already is, and waits until it shows the new state.</summary>
+    public void SetSwitch(string switchName, bool on)
+    {
+        if (IsSwitchOn(switchName) == on)
+        {
+            return;
+        }
+
+        PressSwitch(switchName);
+        UiWait.Until(() => IsSwitchOn(switchName) == on, UiWait.Short, $"the '{switchName}' switch to turn {(on ? "on" : "off")}");
+    }
 
     /// <summary>
     /// Presses the switch with the keyboard (focus it, then Space), which Settings supports
     /// (PRD section 7). Settings can open behind the taskbar's focus after the tray menu, so the
     /// window is brought to the front first and the key is only sent once the switch has focus.
     /// </summary>
-    public void PressLaunchWithWindows()
+    public void PressSwitch(string switchName)
     {
-        AutomationElement toggle = ByName("Launch with Windows");
+        AutomationElement toggle = ByName(switchName);
         UiWait.Until(
             () =>
             {
@@ -68,7 +89,7 @@ internal sealed class SettingsPage
                 return toggle.Properties.HasKeyboardFocus.ValueOrDefault;
             },
             UiWait.Short,
-            "the 'Launch with Windows' switch to have keyboard focus");
+            $"the '{switchName}' switch to have keyboard focus");
         Keyboard.Type(VirtualKeyShort.SPACE);
     }
 
