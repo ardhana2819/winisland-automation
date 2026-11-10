@@ -1,6 +1,6 @@
 # winisland-automation
 
-Smoke tests for [WinIsland](https://github.com/ardhana2819/WinIsland), Diva's Dynamic Island style overlay for Windows 11. The tests use WinIsland the way a person does: install it, start it, open Settings, press the hotkeys, use the tray menu. They tell in a few minutes whether a new release still works, without clicking through everything by hand.
+Smoke tests for [WinIsland](https://github.com/ardhana2819/winisland), Diva's Dynamic Island style overlay for Windows 11. The tests use WinIsland the way a person does: install it, start it, open Settings, press the hotkeys, use the tray menu. They tell in a few minutes whether a new release still works, without clicking through everything by hand.
 
 Every test is described in plain words in [docs/TEST_CASES.md](docs/TEST_CASES.md), together with the checks that stay manual.
 
@@ -34,7 +34,7 @@ Then one of:
 .\run-smoke-tests.ps1 -Version v1.8.0-beta.1                                    # download that release, install, test
 ```
 
-`-Version` downloads the setup from the public [WinIsland-releases](https://github.com/ardhana2819/WinIsland-releases) repository, so it needs no sign-in. This download is done by the script, not by WinIsland: WinIsland itself stays offline.
+`-Version` downloads the setup from the public [WinIsland-releases](https://github.com/ardhana2819/winisland-releases) repository, so it needs no sign-in. This download is done by the script, not by WinIsland: WinIsland itself stays offline.
 
 **During the run (about 4 to 5 minutes) do not touch the mouse or keyboard, and do not run it during a game.**
 
