@@ -1,0 +1,12 @@
+<!--
+  Shared build settings for every project in this repo, the same rules as WinIsland:
+  nullable checks on, every compiler warning treated as an error, code style enforced on build.
+-->
+<Project>
+  <PropertyGroup>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+  </PropertyGroup>
+</Project>

@@ -1,0 +1,37 @@
+<!--
+  WinIsland.SmokeTests: smoke tests that drive the installed WinIsland from the outside.
+  FlaUI.UIA3 finds WinIsland's windows and controls through Windows UI Automation and sends
+  mouse and keyboard input, like a person would. xUnit 2.9.3 runs the tests, the same version
+  WinIsland's own unit tests use.
+  WinForms is on for one small window the focus test (ST-03) keeps in front.
+-->
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <UseWindowsForms>true</UseWindowsForms>
+    <IsPackable>false</IsPackable>
+    <!-- The generated code behind [LibraryImport] in NativeMethods.cs needs this. -->
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="FlaUI.UIA3" Version="5.0.0" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
+    <PackageReference Include="xunit" Version="2.9.3" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="3.1.4" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="Xunit" />
+    <!-- WinForms has its own Button, ComboBox and Window; FlaUI's are the ones the tests mean. -->
+    <Using Remove="System.Windows.Forms" />
+    <Using Remove="System.Drawing" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- One test at a time: only one WinIsland can run, and the tests share the mouse and keyboard. -->
+    <None Include="xunit.runner.json" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+</Project>
