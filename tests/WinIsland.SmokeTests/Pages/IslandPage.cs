@@ -66,6 +66,15 @@ internal sealed class IslandPage
 
     public string ExpandedTitleText() => Text("ExpandedTitle");
 
+    /// <summary>The song title on the compact music pill, which replaces the clock while music plays.</summary>
+    public string MusicPillTitleText() => Text("MusicPillTitle");
+
+    /// <summary>The clock's height: 100 percent while the clock shows, 88 percent while the music pill replaced it.</summary>
+    public double ClockHeight() => Element("ClockText").BoundingRectangle.Height;
+
+    /// <summary>The expanded music page, see MusicPage.</summary>
+    public MusicPage Music() => new(_window);
+
     /// <summary>The hotkey conflict text, empty when there is no conflict.</summary>
     public string ConflictText() => Text("ConflictText");
 

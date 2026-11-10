@@ -4,11 +4,13 @@
   mouse and keyboard input, like a person would. xUnit 2.9.3 runs the tests, the same version
   WinIsland's own unit tests use.
   WinForms is on for one small window the focus test (ST-03) keeps in front.
+  The Windows version matches WinIsland and FakeMusicPlayer: the music tests (ST-14 to ST-18)
+  read Windows' list of media sessions, to check that no other music app is in the way.
 -->
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net10.0-windows</TargetFramework>
+    <TargetFramework>net10.0-windows10.0.26100.0</TargetFramework>
     <UseWindowsForms>true</UseWindowsForms>
     <IsPackable>false</IsPackable>
     <!-- The generated code behind [LibraryImport] in NativeMethods.cs needs this. -->
@@ -27,6 +29,11 @@
     <!-- WinForms has its own Button, ComboBox and Window; FlaUI's are the ones the tests mean. -->
     <Using Remove="System.Windows.Forms" />
     <Using Remove="System.Drawing" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- The stand-in music app for ST-14 to ST-18, built and copied next to the tests. -->
+    <ProjectReference Include="..\FakeMusicPlayer\FakeMusicPlayer.csproj" />
   </ItemGroup>
 
   <ItemGroup>

@@ -23,7 +23,7 @@ If a run is cut off (power cut, window closed), the copy stays as `settings.json
 | Batch | Tests | Status |
 |---|---|---|
 | 1 | ST-01 to ST-13: install, start, Settings, hotkeys, tray | Built |
-| 2 | ST-14 to ST-18: music, with a fake music player | Planned |
+| 2 | ST-14 to ST-18: music, with a fake music player | Built |
 | 3 | ST-19 to ST-24: notifications, with a test notification | Planned |
 
 ## Install and start
@@ -116,39 +116,46 @@ If a run is cut off (power cut, window closed), the copy stays as `settings.json
 - **Expected:** the island shows a conflict banner that names Ctrl+Alt+I, and Settings shows the same problem in amber.
 - **How:** automatic.
 
-## Music (batch 2, planned)
+## Music
 
-These tests use a small test program, `FakeMusicPlayer`, that plays silence and tells Windows it plays "WinIsland Test Song" by "Automation", so they do not need Spotify. Diva's own music should be paused during the run.
+These tests use a small test program, `FakeMusicPlayer` (in `tests/FakeMusicPlayer`), that tells Windows it plays a made-up song, "WinIsland Test Song" by "Automation" from the album "WinIsland Smoke Tests", the same way Spotify does. It plays no sound, so the tests need no Spotify and no real music. Its second song, "WinIsland Test Song 2", is there so Next and Previous show a change. It reports every button press Windows passes on to it, which is how the tests know WinIsland's buttons and keys reached the music app.
+
+**Before the run, close your music apps** (Spotify, a YouTube tab, ...). WinIsland rightly shows another app's music instead of the fake song, so each test first asks Windows which apps have music open:
+- ST-15, ST-16 and ST-17 only need that nothing else **plays**; a paused Spotify is fine.
+- ST-14 and ST-18 need that no other app has music **open at all**, also paused. A paused song shows on the island for 5 seconds after WinIsland starts (FR-23), and after the fake player closes it would be shown instead of "Not playing".
+
+If something is in the way, the test fails at once with "Cannot run:", names the app (for example Spotify.exe) and says what to close. It does not test anything in that case.
 
 ### ST-14 The playing song shows on the island
 - **Why:** WinIsland must show what any music app tells Windows. PRD FR-7, FR-41.
-- **Steps:** start the fake music player.
-- **Expected:** the compact island shows "WinIsland Test Song".
-- **How:** automatic (planned).
+- **Steps:** start WinIsland and measure the clock. Start the fake music player.
+- **Expected:** the compact island shows "WinIsland Test Song" on the music pill, and the clock gives way to it (it rests at 88 percent of its size, like every layer that is not shown).
+- **How:** automatic.
 
 ### ST-15 Music buttons reach the music app
 - **Why:** play/pause, next and previous on the island must control the music app. PRD FR-8.
-- **Steps:** open the island, press Pause, Next, Previous.
-- **Expected:** the music page shows the title and the artist, and the fake player reports each button press.
-- **How:** automatic (planned).
+- **Steps:** with the fake song playing, open the island with Ctrl+Alt+I and click Pause, Next track and Previous track with the mouse.
+- **Expected:** the music page shows "WinIsland Test Song" and "Automation". The fake player gets each press. After Pause the button turns into Play; after Next the page shows "WinIsland Test Song 2"; after Previous it shows "WinIsland Test Song" again.
+- **How:** automatic.
 
 ### ST-16 Music keys work while the island is open
 - **Why:** Space, Ctrl+Right and Ctrl+Left control the music while the island is open. PRD FR-8.
-- **Steps:** open the island, press Space, Ctrl+Right, Ctrl+Left.
-- **Expected:** the fake player reports play/pause, next and previous.
-- **How:** automatic (planned).
+- **Steps:** put a plain test window in front, as a stand-in for a game. With the fake song playing, open the island with Ctrl+Alt+I and press Space, Ctrl+Right, Ctrl+Left.
+- **Expected:** the fake player gets Pause, Next and Previous, and the song title changes with Next and Previous like in ST-15.
+- **Note:** that the keys belong to the game again once the island is closed stays a manual check (M-03).
+- **How:** automatic.
 
 ### ST-17 The song's time moves on
-- **Why:** the progress of the song must keep moving. PRD FR-9.
-- **Steps:** open the island while the fake song plays and read the time twice, a few seconds apart.
-- **Expected:** the elapsed time has gone up.
-- **How:** automatic (planned).
+- **Why:** the progress of the song must keep moving between the music app's reports. PRD FR-9.
+- **Steps:** with the fake song playing, open the island and read the elapsed time twice, 4 seconds apart. The fake player reports its position only when it starts, like real players that report rarely, so any movement comes from WinIsland itself.
+- **Expected:** the elapsed time has gone up by at least 3 seconds.
+- **How:** automatic.
 
 ### ST-18 Closing the music app shows "Not playing"
 - **Why:** when the music app closes, the island must show the empty view without errors. PRD FR-10, FR-24.
-- **Steps:** close the fake music player, then open the island.
+- **Steps:** with the fake song on the island, close the fake music player, then open the island with Ctrl+Alt+I.
 - **Expected:** the music page shows "Not playing", and WinIsland keeps running.
-- **How:** automatic (planned).
+- **How:** automatic.
 
 ## Notifications (batch 3, planned)
 

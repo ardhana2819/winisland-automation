@@ -1,6 +1,7 @@
-// Shortcuts.cs: presses WinIsland's default global hotkeys (WinIsland PRD FR-5) the way a
-// person does, through real keyboard input, so Windows delivers them to WinIsland exactly as in
-// a game. Only the defaults are used: every test starts WinIsland with default settings.
+// Shortcuts.cs: presses WinIsland's default global hotkeys (WinIsland PRD FR-5) and its music
+// keys (FR-8) the way a person does, through real keyboard input, so Windows delivers them to
+// WinIsland exactly as in a game. Only the defaults are used: every test starts WinIsland with
+// default settings.
 
 using FlaUI.Core.Input;
 using FlaUI.Core.WindowsAPI;
@@ -18,9 +19,20 @@ internal static class Shortcuts
     /// <summary>Ctrl+Alt+H: hides or shows the island.</summary>
     public static void HideOrShowIsland() => Press(VirtualKeyShort.KEY_H);
 
-    private static void Press(VirtualKeyShort key)
+    /// <summary>Space: plays or pauses the music, only while the island is open (FR-8).</summary>
+    public static void PlayOrPauseMusic() => PressKeys(VirtualKeyShort.SPACE);
+
+    /// <summary>Ctrl+Right: the next song, only while the island is open (FR-8).</summary>
+    public static void NextSong() => PressKeys(VirtualKeyShort.CONTROL, VirtualKeyShort.RIGHT);
+
+    /// <summary>Ctrl+Left: the previous song, only while the island is open (FR-8).</summary>
+    public static void PreviousSong() => PressKeys(VirtualKeyShort.CONTROL, VirtualKeyShort.LEFT);
+
+    private static void Press(VirtualKeyShort key) => PressKeys(VirtualKeyShort.CONTROL, VirtualKeyShort.ALT, key);
+
+    private static void PressKeys(params VirtualKeyShort[] keys)
     {
-        Keyboard.TypeSimultaneously(VirtualKeyShort.CONTROL, VirtualKeyShort.ALT, key);
+        Keyboard.TypeSimultaneously(keys);
         Thread.Sleep(AfterPress);
     }
 }
