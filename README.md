@@ -34,7 +34,7 @@ Then one of:
 .\run-smoke-tests.ps1 -Version v1.8.0-beta.1                                    # download that release, install, test
 ```
 
-`-Version` downloads the setup from the public [WinIsland-releases](https://github.com/ardhana2819/winisland-releases) repository, so it needs no sign-in. This download is done by the script, not by WinIsland: WinIsland itself stays offline.
+`-Version` downloads the setup from the public [winisland](https://github.com/ardhana2819/winisland/releases) repository, so it needs no sign-in. This download is done by the script, not by WinIsland: WinIsland itself stays offline.
 
 **During the run (about 4 to 5 minutes) do not touch the mouse or keyboard, and do not run it during a game.**
 

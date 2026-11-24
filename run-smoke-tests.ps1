@@ -3,7 +3,7 @@ run-smoke-tests.ps1: runs the WinIsland smoke tests with one command.
 
 What it does, in order:
   1. Gets the setup to test: a file on this PC (-Setup), a release from the public
-     WinIsland-releases repository (-Version), or nothing (-SkipInstall, tests what is installed).
+     winisland repository (-Version), or nothing (-SkipInstall, tests what is installed).
   2. Notes whether WinIsland runs now, so the tests can start it again at the end.
   3. Runs the setup silently. It closes WinIsland, updates it in place and keeps the settings
      (WinIsland PRD FR-44). Uninstalling is never done: it would remove the instant
@@ -34,20 +34,20 @@ param(
 
 $ErrorActionPreference = "Stop"
 
-# The only download is the setup, from the public release copy; WinIsland itself stays offline.
-$ReleasesApi = "https://api.github.com/repos/ardhana2819/winisland-releases/releases/tags"
+# The only download is the setup, from the public winisland releases; WinIsland itself stays offline.
+$ReleasesApi = "https://api.github.com/repos/ardhana2819/winisland/releases/tags"
 $RepoRoot = $PSScriptRoot
 $TestProject = Join-Path $RepoRoot "tests\WinIsland.SmokeTests\WinIsland.SmokeTests.csproj"
 $ResultsFolder = Join-Path $RepoRoot ("results\" + (Get-Date -Format "yyyyMMdd-HHmmss"))
 New-Item -ItemType Directory -Force -Path $ResultsFolder | Out-Null
 
 function Get-ReleaseSetup([string] $Tag) {
-    Write-Host "Looking up WinIsland $Tag in WinIsland-releases..."
+    Write-Host "Looking up WinIsland $Tag in ardhana2819/winisland..."
     try {
         $release = Invoke-RestMethod -Uri "$ReleasesApi/$Tag" -Headers @{ "User-Agent" = "winisland-automation" }
     }
     catch {
-        throw "Release '$Tag' was not found in WinIsland-releases. Check the tag, for example v1.8.0-beta.1. ($($_.Exception.Message))"
+        throw "Release '$Tag' was not found in ardhana2819/winisland. Check the tag, for example v1.8.0-beta.1. ($($_.Exception.Message))"
     }
 
     $asset = $release.assets | Where-Object { $_.name -like "*-setup.exe" } | Select-Object -First 1
