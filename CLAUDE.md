@@ -6,7 +6,7 @@ Instructions Claude Code loads at the start of every session in this repo.
 
 winisland-automation holds the smoke tests for WinIsland, Diva's Dynamic Island style overlay for Windows 11. The tests drive the installed WinIsland from the outside through Windows UI Automation (the accessibility API), with FlaUI and xUnit, the way a person would: install, start, open Settings, press hotkeys, use the tray menu. They run on Diva's PC with one command, not in CI.
 
-The app itself lives in the private repo `ardhana2819/winisland`. Its `docs/PRD.md` is the source of truth for what WinIsland should do. Every test names the PRD requirement it checks (FR-x). If a test and the PRD disagree, report it instead of changing the test to pass.
+The app itself lives in the public repo `ardhana2819/winisland`. Its `docs/PRD.md` is the source of truth for what WinIsland should do. Every test names the PRD requirement it checks (FR-x). If a test and the PRD disagree, report it instead of changing the test to pass.
 
 `docs/TEST_CASES.md` describes every test in plain English. Update it in the same pull request as the test.
 
